@@ -159,4 +159,13 @@ php /path/to/omeka-s/vendor/bin/php-cs-fixer fix
 
 ## License
 
-MIT — see [LICENSE](LICENSE). The bundled libraries keep their own licences, listed above.
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either **version 3 of the License, or (at your option) any later
+version**. The full text is in [`LICENSE`](LICENSE).
+
+GPL-3.0 matches Omeka S itself, which this module is a part of at runtime.
+
+The bundled libraries keep their own licences, listed above — BSD-2-Clause, MIT
+and ISC, all compatible with the above. Each ships its own licence file beside
+it in `asset/vendor/`.

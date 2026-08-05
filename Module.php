@@ -9,6 +9,9 @@ use Omeka\Module\AbstractModule;
  *
  * The data comes from the GeoJson module's API output format, so this module
  * only concerns itself with presentation.
+ *
+ * @copyright Bob Coret, 2026
+ * @license https://www.gnu.org/licenses/gpl-3.0.html GPL-3.0-or-later
  */
 class Module extends AbstractModule
 {
