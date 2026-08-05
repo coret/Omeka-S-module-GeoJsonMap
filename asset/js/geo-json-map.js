@@ -237,7 +237,12 @@
                 }
             });
 
-            fetch(layerConfig.url, {headers: {Accept: 'application/geo+json'}})
+            // No Accept header: "application/geo+json" is not CORS-safelisted,
+            // so sending it turns every cross-origin request into a preflight
+            // that most static hosts do not answer. It buys nothing either —
+            // the API picks the format from the query string, and a static
+            // file ignores the header.
+            fetch(layerConfig.url)
                 .then(function (response) {
                     if (!response.ok) {
                         throw new Error('HTTP ' + response.status);

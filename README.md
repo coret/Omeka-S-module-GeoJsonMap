@@ -3,9 +3,12 @@
 Omeka S module adding a page block that draws one or more GeoJSON collections on a
 [Leaflet](https://leafletjs.com/) map — configured rather than hand-written.
 
-It reads its data from the
-[GeoJson module](https://github.com/coret/Omeka-S-module-GeoJson), which renders any Omeka S
-item query as an RFC 7946 `FeatureCollection`.
+A layer names **any URL** returning an RFC 7946 `FeatureCollection` — a file on your own site,
+or a collection published anywhere else. Nothing else is required.
+
+It can also name an Omeka **item set** instead, which the companion
+[GeoJson module](https://github.com/coret/Omeka-S-module-GeoJson) renders as GeoJSON. That
+module is optional: install it if you want to map your own collections rather than files.
 
 ## Why
 
@@ -24,7 +27,7 @@ object per layer:
 ```json
 [
   {
-    "item_set_id": 92174,
+    "geojson_url": "/files/windmills.geojson",
     "label": "Molens",
     "render": "marker",
     "icon_url": "/files/geo/molen.png",
@@ -37,7 +40,8 @@ object per layer:
 
 | Key | Meaning |
 |---|---|
-| `item_set_id` *or* `query` | What to draw. `query` takes any Omeka API query string, so `resource_class_id=42&property[0][property]=1` works as well as an item set. |
+| `geojson_url` | What to draw: any URL returning an RFC 7946 `FeatureCollection` — a file on this site, or a collection published anywhere else. Needs nothing but this module. |
+| `item_set_id` *or* `query` | What to draw, as Omeka resources instead. Requires the [GeoJson](https://github.com/coret/Omeka-S-module-GeoJson) module, which renders the query as GeoJSON. `query` takes any Omeka API query string, so `resource_class_id=42&property[0][property]=1` works as well as an item set. |
 | `label` | Name in the layer control |
 | `render` | `shape` (default) or `marker` |
 | `color` | Shape colour |
@@ -106,7 +110,11 @@ skipped, so it is absent from the control rather than failing as unexplained bla
 |---|---|
 | Omeka S | `^4.0.0` |
 | PHP | 8.1 or later |
-| Modules | [GeoJson](https://github.com/coret/Omeka-S-module-GeoJson) |
+| Modules | none required. [GeoJson](https://github.com/coret/Omeka-S-module-GeoJson) is needed **only** for layers that name an `item_set_id` or a `query`; a layer with a `geojson_url` needs nothing. |
+
+A layer's URL is fetched by the browser, so a **cross-origin** one must send
+`Access-Control-Allow-Origin`. Serving the file from your own site — `/files/…` — sidesteps
+that entirely, and Omeka's own API already sends the header.
 
 No Composer dependencies. The JavaScript libraries are bundled; nothing is fetched from a CDN
 at runtime, so the module works on an isolated network and adds no third-party requests to your
@@ -127,15 +135,14 @@ Licence texts are in each directory under `asset/vendor/`.
 
 ## Installation
 
-1. Install the [GeoJson](https://github.com/coret/Omeka-S-module-GeoJson) module first.
-2. Unzip this module into `modules/`, so it lives at `modules/GeoJsonMap/`, or:
+1. Unzip this module into `modules/`, so it lives at `modules/GeoJsonMap/`, or:
 
 ```bash
 cd /path/to/omeka-s/modules
 git clone https://github.com/coret/Omeka-S-module-GeoJsonMap.git GeoJsonMap
 ```
 
-3. In the Omeka S admin, go to **Modules**, find **GeoJSON Map** and click **Install**.
+2. In the Omeka S admin, go to **Modules**, find **GeoJSON Map** and click **Install**.
 
 The directory name **must** be `GeoJsonMap` — Omeka S resolves modules by directory name, and it
 has to match the namespace. Note this differs from the repository name, so keep the trailing

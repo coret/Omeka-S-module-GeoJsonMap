@@ -7,6 +7,7 @@ use Omeka\Api\Representation\SitePageBlockRepresentation;
 use Omeka\Api\Representation\SitePageRepresentation;
 use Omeka\Api\Representation\SiteRepresentation;
 use Omeka\Entity\SitePageBlock;
+use Omeka\Module\Manager as ModuleManager;
 use Omeka\Site\BlockLayout\AbstractBlockLayout;
 use Omeka\Stdlib\ErrorStore;
 
@@ -17,6 +18,9 @@ use Omeka\Stdlib\ErrorStore;
  * hand-written map scripts varied — sources, colours, icons, popups, labels,
  * clustering — is configuration here; anything genuinely site-specific is
  * reachable through the named-callback escape hatches.
+ *
+ * A layer names its data either as a URL, which needs nothing but this module,
+ * or as an Omeka item set, which the GeoJson module turns into one.
  */
 class GeoJsonMap extends AbstractBlockLayout
 {
@@ -25,9 +29,26 @@ class GeoJsonMap extends AbstractBlockLayout
      */
     protected $settings;
 
-    public function __construct(array $settings)
+    /**
+     * @var ModuleManager
+     */
+    protected $moduleManager;
+
+    public function __construct(array $settings, ModuleManager $moduleManager)
     {
         $this->settings = $settings;
+        $this->moduleManager = $moduleManager;
+    }
+
+    /**
+     * Is the GeoJson module there to answer an item-set layer?
+     *
+     * @return bool
+     */
+    public function geoJsonIsAvailable()
+    {
+        $module = $this->moduleManager->getModule('GeoJson');
+        return $module && ModuleManager::STATE_ACTIVE === $module->getState();
     }
 
     public function getLabel()
@@ -67,9 +88,16 @@ class GeoJsonMap extends AbstractBlockLayout
                 ));
             } else {
                 foreach ($decoded as $index => $layer) {
-                    if (!is_array($layer) || (!isset($layer['item_set_id']) && !isset($layer['query']))) {
+                    // A layer is drawn from a URL, or from an item set the
+                    // GeoJson module turns into one. "url" is the older
+                    // spelling of geojson_url and still accepted.
+                    $hasSource = is_array($layer) && (
+                        isset($layer['geojson_url']) || isset($layer['url'])
+                        || isset($layer['item_set_id']) || isset($layer['query'])
+                    );
+                    if (!$hasSource) {
                         $errorStore->addError('layers', sprintf(
-                            'Layer %d needs an "item_set_id" or a "query".', // @translate
+                            'Layer %d needs a "geojson_url", an "item_set_id" or a "query".', // @translate
                             $index + 1
                         ));
                     }
@@ -111,8 +139,22 @@ class GeoJsonMap extends AbstractBlockLayout
 
         // Resolve each layer's source to a URL now, so the browser does not
         // need to know how the GeoJson module's API is addressed.
+        //
+        // A layer built from an item set is served by the GeoJson module. If
+        // that module is not active the request would 404 and surface only as
+        // a fetch failure in the console, so say what is wrong instead.
+        $needsGeoJsonModule = false;
         foreach ($layers as $index => $layer) {
+            if (!isset($layer['geojson_url']) && !isset($layer['url'])) {
+                $needsGeoJsonModule = true;
+            }
             $layers[$index]['url'] = $this->buildUrl($view, $layer);
+        }
+        if ($needsGeoJsonModule && !$this->geoJsonIsAvailable()) {
+            return sprintf(
+                '<p class="error">%s</p>',
+                $view->translate('This map draws an Omeka item set, which needs the GeoJson module to be installed and active. Alternatively, give each layer a "geojson_url".') // @translate
+            );
         }
 
         // Only pull in the libraries this particular map actually needs.
@@ -171,8 +213,13 @@ class GeoJsonMap extends AbstractBlockLayout
      */
     protected function buildUrl(PhpRenderer $view, array $layer)
     {
+        // A URL is used as given: it may be a file on this site, or a
+        // collection published anywhere else.
+        if (isset($layer['geojson_url'])) {
+            return $layer['geojson_url'];
+        }
         if (isset($layer['url'])) {
-            return $layer['url'];
+            return $layer['url']; // the earlier spelling
         }
         $query = [];
         if (isset($layer['query'])) {
