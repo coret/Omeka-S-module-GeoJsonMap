@@ -15,6 +15,31 @@
         });
     }
 
+    /**
+     * Read a property, optionally narrowing it with a regular expression.
+     *
+     * Collections often carry a category only inside a human-readable title —
+     * "Gouda, wijk 3" — with no property of its own. A pattern recovers it:
+     * the first capture group wins, or the whole match when there is no group.
+     * No match yields null, which callers treat as "nothing to show".
+     */
+    function extract(properties, key, pattern) {
+        var value = properties ? properties[key] : null;
+        if (value === undefined || value === null || value === '') {
+            return null;
+        }
+        if (!pattern) {
+            return value;
+        }
+        try {
+            var found = String(value).match(new RegExp(pattern));
+            return found ? (found[1] !== undefined ? found[1] : found[0]) : null;
+        } catch (e) {
+            console.error('[GeoJsonMap] bad pattern: ' + pattern, e);
+            return null;
+        }
+    }
+
     /** A named global function, if the site actually defined it. */
     function namedFunction(name) {
         if (!name) {
@@ -43,9 +68,9 @@
         return function (feature) {
             var color = layerConfig.color || '#3388ff';
             if (layerConfig.color_property) {
-                var key = feature.properties ? feature.properties[layerConfig.color_property] : null;
+                var key = extract(feature.properties, layerConfig.color_property, layerConfig.color_pattern);
                 var map = layerConfig.color_map || {};
-                if (key !== undefined && key !== null && map[key]) {
+                if (key !== null && map[key]) {
                     color = map[key];
                 }
             }
@@ -187,20 +212,8 @@
                     }
 
                     if (labelLayer) {
-                        var text = feature.properties ? feature.properties[layerConfig.label_property] : null;
-                        // Optional: label with part of the property rather than
-                        // all of it, e.g. the number out of "Gouda, wijk 3".
-                        // The first capture group wins; no match means no label.
-                        if (text && layerConfig.label_pattern) {
-                            try {
-                                var found = String(text).match(new RegExp(layerConfig.label_pattern));
-                                text = found ? (found[1] !== undefined ? found[1] : found[0]) : null;
-                            } catch (e) {
-                                console.error('[GeoJsonMap] bad label_pattern: ' + layerConfig.label_pattern, e);
-                                text = null;
-                            }
-                        }
-                        var point = (text !== undefined && text !== null && text !== '')
+                        var text = extract(feature.properties, layerConfig.label_property, layerConfig.label_pattern);
+                        var point = (text !== null && text !== '')
                             ? labelPoint(feature, layer)
                             : null;
                         if (point) {

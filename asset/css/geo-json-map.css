@@ -17,31 +17,3 @@
     background: none;
     border: none;
 }
-
-/* The layer control sizes to its longest entry.
-   Leaflet leaves the width to the content, but the site theme pins it with
-   `.leaflet-control-layers-expanded { width: 8em }`, which wraps names like
-   "Kadastrale percelen (BRK)" onto a second line. This rule loads after the
-   theme and has the same specificity, so it wins without !important.
-   The ceiling keeps a long layer name from covering a narrow screen; past it
-   the list scrolls rather than growing further. */
-.leaflet-control-layers-expanded {
-    padding: 5px 3px 5px 3px;
-    width: max-content;
-    max-width: min(80vw, 24em);
-}
-
-/* Each entry stays on one line. The inner span is Leaflet 1.9's markup:
-   label > span > (input + span). */
-.leaflet-control-layers-expanded label,
-.leaflet-control-layers-expanded label span {
-    white-space: nowrap;
-}
-
-a.leaflet-control-zoom-fullscreen.fullscreen-icon {
-    background-position: 2px 3px!important;
-}
-
-.leaflet-touch .leaflet-bar a {
-    text-decoration: none;
-}
