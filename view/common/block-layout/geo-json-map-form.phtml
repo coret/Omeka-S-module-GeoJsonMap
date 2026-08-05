@@ -1,0 +1,160 @@
+<?php
+/**
+ * @var array $data      The block's stored data
+ * @var array $defaults  Module defaults, shown as placeholders
+ * @var array $baseLayers
+ * @var array $overlays
+ */
+$escape = $this->plugin('escapeHtml');
+$attr = $this->plugin('escapeHtmlAttr');
+$translate = $this->plugin('translate');
+
+$value = function ($key, $fallback = '') use ($data) {
+    return isset($data[$key]) ? $data[$key] : $fallback;
+};
+
+$exampleLayers = <<<'JSON'
+[
+  {
+    "item_set_id": 92174,
+    "label": "Molens",
+    "render": "marker",
+    "icon_url": "/files/geo/molen.png",
+    "icon_size": [20, 20],
+    "icon_anchor": [10, 8],
+    "cluster": true
+  }
+]
+JSON;
+?>
+<div class="field">
+    <div class="field-meta">
+        <label for="geojsonmap-layers"><?php echo $translate('Layers'); ?></label>
+        <div class="field-description">
+            <?php echo $translate('A JSON array, one object per layer. Each needs an "item_set_id" or a "query"; optional keys: label, render (shape|marker), color, color_property, color_map, icon_url, icon_size, icon_anchor, cluster, label_property, label_pattern, visible.'); ?>
+        </div>
+    </div>
+    <div class="inputs">
+        <textarea id="geojsonmap-layers" name="o:block[__blockIndex__][o:data][layers]" rows="14"
+                  placeholder="<?php echo $attr($exampleLayers); ?>"><?php echo $escape($value('layers')); ?></textarea>
+    </div>
+</div>
+
+<div class="field">
+    <div class="field-meta">
+        <label for="geojsonmap-popup"><?php echo $translate('Popup template'); ?></label>
+        <div class="field-description">
+            <?php echo $translate('HTML with {property} placeholders resolved against each feature. A placeholder with no value renders empty.'); ?>
+        </div>
+    </div>
+    <div class="inputs">
+        <input type="text" id="geojsonmap-popup" name="o:block[__blockIndex__][o:data][popup_template]"
+               value="<?php echo $attr($value('popup_template')); ?>"
+               placeholder="<?php echo $attr($defaults['popup_template'] ?? ''); ?>">
+    </div>
+</div>
+
+<div class="field">
+    <div class="field-meta">
+        <label for="geojsonmap-height"><?php echo $translate('Height (px)'); ?></label>
+    </div>
+    <div class="inputs">
+        <input type="number" id="geojsonmap-height" name="o:block[__blockIndex__][o:data][height]"
+               value="<?php echo $attr($value('height')); ?>"
+               placeholder="<?php echo $attr($defaults['height'] ?? 500); ?>">
+    </div>
+</div>
+
+<div class="field">
+    <div class="field-meta">
+        <label for="geojsonmap-zoom"><?php echo $translate('Zoom'); ?></label>
+    </div>
+    <div class="inputs">
+        <input type="number" step="0.1" id="geojsonmap-zoom" name="o:block[__blockIndex__][o:data][zoom]"
+               value="<?php echo $attr($value('zoom')); ?>"
+               placeholder="<?php echo $attr($defaults['zoom'] ?? 16); ?>">
+    </div>
+</div>
+
+<div class="field">
+    <div class="field-meta">
+        <label for="geojsonmap-center"><?php echo $translate('Centre'); ?></label>
+        <div class="field-description"><?php echo $translate('Latitude, longitude. Leave empty for the configured default.'); ?></div>
+    </div>
+    <div class="inputs">
+        <input type="text" id="geojsonmap-center" name="o:block[__blockIndex__][o:data][center]"
+               value="<?php echo $attr($value('center')); ?>"
+               placeholder="<?php echo $attr(implode(', ', $defaults['center'] ?? [])); ?>">
+    </div>
+</div>
+
+<div class="field">
+    <div class="field-meta">
+        <label for="geojsonmap-base"><?php echo $translate('Base layer'); ?></label>
+    </div>
+    <div class="inputs">
+        <select id="geojsonmap-base" name="o:block[__blockIndex__][o:data][base_layer]">
+            <?php foreach ($baseLayers as $id => $layer): ?>
+                <option value="<?php echo $attr($id); ?>" <?php echo $value('base_layer') === $id ? 'selected' : ''; ?>>
+                    <?php echo $escape($layer['label'] ?? $id); ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+</div>
+
+<div class="field">
+    <div class="field-meta">
+        <label for="geojsonmap-overlay"><?php echo $translate('Overlay shown initially'); ?></label>
+    </div>
+    <div class="inputs">
+        <select id="geojsonmap-overlay" name="o:block[__blockIndex__][o:data][overlay]">
+            <option value=""><?php echo $translate('None'); ?></option>
+            <?php foreach ($overlays as $id => $layer): ?>
+                <option value="<?php echo $attr($id); ?>" <?php echo $value('overlay') === $id ? 'selected' : ''; ?>>
+                    <?php echo $escape($layer['label'] ?? $id); ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+</div>
+
+<div class="field">
+    <div class="field-meta">
+        <label for="geojsonmap-fit"><?php echo $translate('Zoom to fit the data'); ?></label>
+    </div>
+    <div class="inputs">
+        <input type="checkbox" id="geojsonmap-fit" name="o:block[__blockIndex__][o:data][fit_bounds]"
+               value="1" <?php echo $value('fit_bounds') ? 'checked' : ''; ?>>
+    </div>
+</div>
+
+<div class="field">
+    <div class="field-meta">
+        <label for="geojsonmap-stacked"><?php echo $translate('List every feature under a click'); ?></label>
+        <div class="field-description">
+            <?php echo $translate('For overlapping shapes: one popup listing all features at the clicked point, instead of only the topmost.'); ?>
+        </div>
+    </div>
+    <div class="inputs">
+        <input type="checkbox" id="geojsonmap-stacked" name="o:block[__blockIndex__][o:data][stacked_popups]"
+               value="1" <?php echo $value('stacked_popups') ? 'checked' : ''; ?>>
+    </div>
+</div>
+
+<div class="field">
+    <div class="field-meta">
+        <label for="geojsonmap-style-fn"><?php echo $translate('Custom functions'); ?></label>
+        <div class="field-description">
+            <?php echo $translate('Names of global JavaScript functions your site provides, for cases the options above cannot express. Style receives (feature), popup receives (feature), each-feature receives (feature, layer).'); ?>
+        </div>
+    </div>
+    <div class="inputs">
+        <input type="text" id="geojsonmap-style-fn" name="o:block[__blockIndex__][o:data][style_function]"
+               value="<?php echo $attr($value('style_function')); ?>" placeholder="<?php echo $attr($translate('style function')); ?>">
+        <input type="text" name="o:block[__blockIndex__][o:data][popup_function]"
+               value="<?php echo $attr($value('popup_function')); ?>" placeholder="<?php echo $attr($translate('popup function')); ?>">
+        <input type="text" name="o:block[__blockIndex__][o:data][on_each_feature]"
+               value="<?php echo $attr($value('on_each_feature')); ?>" placeholder="<?php echo $attr($translate('each-feature function')); ?>">
+    </div>
+</div>

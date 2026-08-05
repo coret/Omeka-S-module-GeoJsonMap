@@ -1,0 +1,14 @@
+<?php
+/**
+ * @var \Omeka\Api\Representation\SitePageBlockRepresentation $block
+ * @var array $config
+ *
+ * The whole configuration travels in a data attribute, so the script can drive
+ * any number of maps on one page without any of them needing a known id.
+ */
+$id = sprintf('geojson-map-%d', $block->id());
+?>
+<div class="geojson-map"
+     id="<?php echo $this->escapeHtml($id); ?>"
+     style="width:100%;height:<?php echo (int) $config['height']; ?>px"
+     data-geojson-map="<?php echo $this->escapeHtml(json_encode($config, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)); ?>"></div>
