@@ -228,8 +228,11 @@
                         }
                     }
 
+                    // The map is passed too: a custom handler usually needs it
+                    // (to open a popup, say) and it is not a global here, since
+                    // a page may hold several maps.
                     if (customEach) {
-                        customEach(feature, layer);
+                        customEach(feature, layer, map);
                     }
                 }
             });
