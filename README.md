@@ -77,8 +77,102 @@ naming all of them instead of only the topmost.
 ### When configuration is not enough
 
 Three optional fields name global JavaScript functions your site provides:
-`style_function(feature)`, `popup_function(feature)` and `on_each_feature(feature, layer)`. A
-name that does not resolve is reported to the console and ignored rather than breaking the map.
+`style_function(feature)`, `popup_function(feature)` and
+`on_each_feature(feature, layer, map)`. A name that does not resolve is reported to the console
+and ignored rather than breaking the map.
+
+The map is passed as an argument because it is deliberately **not** a global — a page may hold
+several maps, and each keeps its own.
+
+## Example
+
+[Gouda Tijdmachine](https://www.goudatijdmachine.nl/) runs this module in production: some
+forty of its pages draw their maps with this block. Five of them, live, from the plainest to
+the most involved:
+
+- **Bruggen** (bridges) &raquo; 109 points with a custom marker icon —
+  <https://www.goudatijdmachine.nl/omeka/s/data/page/bruggen>
+- **Hofjes** (almshouse courtyards) &raquo; polygons in a single colour —
+  <https://www.goudatijdmachine.nl/omeka/s/data/page/hofjes>
+- **Gebouwen en kunstwerken** (buildings and structures) &raquo; **thirteen** layers, each its
+  own source, colour and entry in the layer control —
+  <https://www.goudatijdmachine.nl/omeka/s/data/page/gebouwen>
+- **Referentie locatiepunten** (location points) &raquo; clustered markers, and a click that
+  looks up which resources refer to the point —
+  <https://www.goudatijdmachine.nl/omeka/s/data/page/referentie-locatiepunten>
+- **Verpondingen** (property-tax numbers) &raquo; 3570 polygons, each labelled with its number,
+  and a search box that opens one by number —
+  <https://www.goudatijdmachine.nl/omeka/s/data/page/verpondingen>
+
+The first three are configuration only. The last two add one function each, in a plain HTML
+block on the same page, named by the map block's **each-feature function** setting.
+
+### Looking something up when a feature is clicked
+
+*Referentie locatiepunten* sets `on_each_feature` to `locatiepuntClick`. The feature's `id` is
+its API URL, so the handler fetches it and lists the resources that point at this location
+through `geo:hasGeometry`:
+
+```js
+function locatiepuntClick(feature, layer, map) {
+	layer.on('click', function (e) {
+		var url = e.target.feature.id;
+		var title = e.target.feature.properties.title;
+		var lat = e.latlng.lat;
+		var lng = e.latlng.lng;
+		fetch(url)
+			.then(function (response) {
+				if (!response.ok) {
+					throw new Error('HTTP error! Status: ' + response.status);
+				}
+				return response.json();
+			})
+			.then(function (data) {
+				if (data['@reverse'] && data['@reverse']['geo:hasGeometry']) {
+					var geometries = data['@reverse']['geo:hasGeometry'];
+					var info = "<h4 style='margin:0'>Locatiepunt <a href='https://www.goudatijdmachine.nl/omeka/s/data/item/" + data['o:id'] + "'>" + title + "</a></h4><ul>";
+					geometries.forEach(function (item) {
+						var href = item['@id'].replace('/api/resources/', '/s/data/item/');
+						info += '<li><a href="' + href + '">' + item['o:title'] + '</a></li>';
+					});
+					map.openPopup(info + '</ul>', [lat, lng]);
+				}
+			})
+			.catch(function (error) {
+				console.error('Error fetching or processing data:', error);
+			});
+	});
+}
+```
+
+### Reaching a feature from outside the map
+
+*Verpondingen* has a search box above the map: type a number, and that polygon's popup opens.
+The block cannot express that, but it does not need to — it hands every feature to
+`registerVerponding`, which keeps a registry the input reads. Because the block already binds
+the popup from the popup template, the function only has to remember the layer:
+
+```js
+var verpondingen = [];
+
+function registerVerponding(feature, layer, map) {
+	if (feature.properties && feature.properties.title) {
+		verpondingen[feature.properties.title.substring(11)] = layer;
+	}
+}
+
+function popupverponding() {
+	var sp = document.getElementById("showverponding").value;
+	if (verpondingen[sp]) {
+		verpondingen[sp].openPopup();
+	}
+}
+```
+
+The number in the label comes from configuration rather than code — the titles read
+*Verponding 3773*, so the layer sets `"label_property": "title"` with
+`"label_pattern": "^Verponding (.+)$"`. The *Waterlopen* page uses the same two-part pattern,
+keyed on the name instead of a number.
 
 ## Base layers and overlays
 
