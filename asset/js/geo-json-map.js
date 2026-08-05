@@ -202,9 +202,14 @@
             if (layerConfig.cluster && !useCluster) {
                 console.error('[GeoJsonMap] clustering requested but Leaflet.markercluster is not loaded');
             }
-            var container = useCluster
-                ? L.markerClusterGroup({disableClusteringAtZoom: layerConfig.cluster_disable_at_zoom || 17})
-                : L.layerGroup();
+            // Cluster options are passed through, and nothing is imposed:
+            // without cluster_disable_at_zoom, Leaflet's own default applies
+            // rather than a number this module invented.
+            var clusterOptions = Object.assign({}, layerConfig.cluster_options || {});
+            if (layerConfig.cluster_disable_at_zoom) {
+                clusterOptions.disableClusteringAtZoom = layerConfig.cluster_disable_at_zoom;
+            }
+            var container = useCluster ? L.markerClusterGroup(clusterOptions) : L.layerGroup();
 
             var labelLayer = layerConfig.label_property ? L.layerGroup() : null;
 

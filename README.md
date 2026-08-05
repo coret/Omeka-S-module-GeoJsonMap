@@ -48,7 +48,7 @@ object per layer:
 | `color_property` + `color_map` | Colour looked up from a property value, e.g. `"color_property": "status"` with `{"restant": "#e81123"}` |
 | `weight`, `opacity`, `fill_color`, `fill_opacity` | Shape styling |
 | `icon_url`, `icon_size`, `icon_anchor`, `popup_anchor` | Marker styling |
-| `cluster`, `cluster_disable_at_zoom` | Group nearby markers |
+| `cluster`, `cluster_disable_at_zoom`, `cluster_options` | Group nearby markers. Without `cluster_disable_at_zoom`, Leaflet.markercluster’s own default applies; `cluster_options` is passed through to it verbatim |
 | `label_property` | Draw a text label on each shape from this property |
 | `label_class`, `label_anchor`, `label_size` | Styling hooks for the label element |
 | `label_pattern` | Regular expression narrowing that label; the first capture group wins. `"wijk (\\d+)"` turns *Gouda, wijk 3* into *3* |
