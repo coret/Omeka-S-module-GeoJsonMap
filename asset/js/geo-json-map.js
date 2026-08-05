@@ -107,10 +107,17 @@
                     return L.latLng(q[1], q[0]);
                 }
             }
+            if ('Point' === geometry.type) {
+                return L.latLng(geometry.coordinates[1], geometry.coordinates[0]);
+            }
         } catch (e) {
             console.error('[GeoJsonMap] label placement failed', e);
         }
-        return layer.getBounds ? layer.getBounds().getCenter() : null;
+        // A marker has no bounds, so fall back to its own position.
+        if (layer.getBounds) {
+            return layer.getBounds().getCenter();
+        }
+        return layer.getLatLng ? layer.getLatLng() : null;
     }
 
     function drawMap(element) {
@@ -177,6 +184,9 @@
 
         (config.layers || []).forEach(function (layerConfig, index) {
             var isMarker = layerConfig.render === 'marker';
+            // "label": the text label is the whole representation of a feature,
+            // with no marker or shape drawn beneath it.
+            var isLabelOnly = layerConfig.render === 'label';
             var icon = null;
             if (isMarker && layerConfig.icon_url) {
                 icon = L.icon({
@@ -201,13 +211,21 @@
             var geoJsonLayer = L.geoJSON(null, {
                 style: isMarker ? undefined : shapeStyle(layerConfig, customStyle),
                 pointToLayer: function (feature, latlng) {
+                    // "label" draws nothing at the point itself: the text is
+                    // the whole representation, so an invisible marker just
+                    // holds the feature's place.
+                    // An empty group rather than an invisible marker: nothing
+                    // is drawn here, so nothing needs to reach the DOM.
+                    if (isLabelOnly) {
+                        return L.layerGroup();
+                    }
                     return icon ? L.marker(latlng, {icon: icon}) : L.marker(latlng);
                 },
                 onEachFeature: function (feature, layer) {
                     var html = customPopup
                         ? customPopup(feature)
                         : fillTemplate(config.popupTemplate || '', feature.properties || {});
-                    if (html) {
+                    if (html && !isLabelOnly) {
                         layer.bindPopup(html);
                     }
 
@@ -217,14 +235,20 @@
                             ? labelPoint(feature, layer)
                             : null;
                         if (point) {
-                            L.marker(point, {
+                            var label = L.marker(point, {
                                 icon: L.divIcon({
-                                    className: 'geojson-map-label',
+                                    className: ('geojson-map-label ' + (layerConfig.label_class || '')).trim(),
                                     html: String(text),
+                                    iconAnchor: layerConfig.label_anchor || undefined,
                                     iconSize: layerConfig.label_size || [40, 30]
                                 }),
-                                interactive: false
+                                // When the label is all there is, it has to be
+                                // clickable and carry the popup itself.
+                                interactive: isLabelOnly
                             }).addTo(labelLayer);
+                            if (html && isLabelOnly) {
+                                label.bindPopup(html);
+                            }
                         }
                     }
 

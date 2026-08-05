@@ -43,13 +43,14 @@ object per layer:
 | `geojson_url` | What to draw: any URL returning an RFC 7946 `FeatureCollection` — a file on this site, or a collection published anywhere else. Needs nothing but this module. |
 | `item_set_id` *or* `query` | What to draw, as Omeka resources instead. Requires the [GeoJson](https://github.com/coret/Omeka-S-module-GeoJson) module, which renders the query as GeoJSON. `query` takes any Omeka API query string, so `resource_class_id=42&property[0][property]=1` works as well as an item set. |
 | `label` | Name in the layer control |
-| `render` | `shape` (default) or `marker` |
+| `render` | `shape` (default), `marker`, or `label` — the last draws only the text label, with nothing beneath it |
 | `color` | Shape colour |
 | `color_property` + `color_map` | Colour looked up from a property value, e.g. `"color_property": "status"` with `{"restant": "#e81123"}` |
 | `weight`, `opacity`, `fill_color`, `fill_opacity` | Shape styling |
 | `icon_url`, `icon_size`, `icon_anchor`, `popup_anchor` | Marker styling |
 | `cluster`, `cluster_disable_at_zoom` | Group nearby markers |
 | `label_property` | Draw a text label on each shape from this property |
+| `label_class`, `label_anchor`, `label_size` | Styling hooks for the label element |
 | `label_pattern` | Regular expression narrowing that label; the first capture group wins. `"wijk (\\d+)"` turns *Gouda, wijk 3* into *3* |
 | `visible` | `false` registers the layer in the control without switching it on |
 
