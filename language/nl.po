@@ -1,0 +1,159 @@
+# Dutch translation for the Omeka S module GeoJSON Map.
+# Copyright (C) 2026 Bob Coret
+# This file is distributed under the same license as the GeoJsonMap module.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: GeoJsonMap 0.2\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-08-05 20:00+0200\n"
+"PO-Revision-Date: 2026-08-05 20:00+0200\n"
+"Last-Translator: Bob Coret\n"
+"Language-Team: Dutch\n"
+"Language: nl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: config/module.ini:4
+msgid "GeoJSON Map"
+msgstr "GeoJSON-kaart"
+
+#: config/module.ini:5
+msgid ""
+"Adds a page block that draws any GeoJSON on a Leaflet map, configured rather "
+"than hand-written. Layers name a URL, or an Omeka item set when the GeoJson "
+"module is installed."
+msgstr ""
+"Voegt een paginablok toe dat willekeurige GeoJSON op een Leaflet-kaart "
+"tekent, ingesteld in plaats van met de hand geschreven. Lagen verwijzen naar "
+"een URL, of naar een Omeka-itemset als de GeoJson-module is geïnstalleerd."
+
+#: src/Site/BlockLayout/GeoJsonMap.php:56
+msgid "GeoJSON map"
+msgstr "GeoJSON-kaart"
+
+#: src/Site/BlockLayout/GeoJsonMap.php:81
+msgid "Define at least one layer."
+msgstr "Geef ten minste één laag op."
+
+#: src/Site/BlockLayout/GeoJsonMap.php:86
+#, php-format
+msgid "The layers are not valid JSON: %s"
+msgstr "De lagen zijn geen geldige JSON: %s"
+
+#: src/Site/BlockLayout/GeoJsonMap.php:100
+#, php-format
+msgid "Layer %d needs a \"geojson_url\", an \"item_set_id\" or a \"query\"."
+msgstr "Laag %d heeft een \"geojson_url\", een \"item_set_id\" of een \"query\" nodig."
+
+#: src/Site/BlockLayout/GeoJsonMap.php:156
+msgid ""
+"This map draws an Omeka item set, which needs the GeoJson module to be "
+"installed and active. Alternatively, give each layer a \"geojson_url\"."
+msgstr ""
+"Deze kaart tekent een Omeka-itemset; daarvoor moet de GeoJson-module "
+"geïnstalleerd en actief zijn. Je kunt elke laag ook een \"geojson_url\" geven."
+
+#: view/common/block-layout/geo-json-map-form.phtml:32
+msgid "Layers"
+msgstr "Lagen"
+
+#: view/common/block-layout/geo-json-map-form.phtml:34
+msgid ""
+"A JSON array, one object per layer. Each needs a \"geojson_url\" (any URL "
+"returning a FeatureCollection), or an \"item_set_id\"/\"query\" when the "
+"GeoJson module is installed; optional keys: label, render (shape|marker|"
+"label), color, color_property, color_pattern, color_map, icon_url, "
+"icon_size, icon_anchor, cluster, cluster_options, label_property, "
+"label_pattern, label_class, visible."
+msgstr ""
+"Een JSON-array met één object per laag. Elke laag heeft een \"geojson_url\" "
+"nodig (een URL die een FeatureCollection teruggeeft), of een \"item_set_id\"/"
+"\"query\" als de GeoJson-module is geïnstalleerd. Optionele sleutels: label, "
+"render (shape|marker|label), color, color_property, color_pattern, "
+"color_map, icon_url, icon_size, icon_anchor, cluster, cluster_options, "
+"label_property, label_pattern, label_class, visible."
+
+#: view/common/block-layout/geo-json-map-form.phtml:45
+msgid "Popup template"
+msgstr "Popup-sjabloon"
+
+#: view/common/block-layout/geo-json-map-form.phtml:47
+msgid ""
+"HTML with {property} placeholders resolved against each feature. A "
+"placeholder with no value renders empty."
+msgstr ""
+"HTML met {eigenschap}-plaatshouders die per feature worden ingevuld. Een "
+"plaatshouder zonder waarde blijft leeg."
+
+#: view/common/block-layout/geo-json-map-form.phtml:59
+msgid "Height (px)"
+msgstr "Hoogte (px)"
+
+#: view/common/block-layout/geo-json-map-form.phtml:70
+msgid "Zoom"
+msgstr "Zoom"
+
+#: view/common/block-layout/geo-json-map-form.phtml:81
+msgid "Centre"
+msgstr "Middelpunt"
+
+#: view/common/block-layout/geo-json-map-form.phtml:82
+msgid "Latitude, longitude. Leave empty for the configured default."
+msgstr "Breedtegraad, lengtegraad. Laat leeg voor de ingestelde standaard."
+
+#: view/common/block-layout/geo-json-map-form.phtml:93
+msgid "Base layer"
+msgstr "Achtergrondlaag"
+
+#: view/common/block-layout/geo-json-map-form.phtml:108
+msgid "Overlay shown initially"
+msgstr "Overlay die meteen wordt getoond"
+
+#: view/common/block-layout/geo-json-map-form.phtml:112
+msgid "None"
+msgstr "Geen"
+
+#: view/common/block-layout/geo-json-map-form.phtml:124
+msgid "Zoom to fit the data"
+msgstr "Inzoomen op de data"
+
+#: view/common/block-layout/geo-json-map-form.phtml:134
+msgid "List every feature under a click"
+msgstr "Alle features onder een klik tonen"
+
+#: view/common/block-layout/geo-json-map-form.phtml:136
+msgid ""
+"For overlapping shapes: one popup listing all features at the clicked point, "
+"instead of only the topmost."
+msgstr ""
+"Voor overlappende vlakken: één popup met alle features op het aangeklikte "
+"punt, in plaats van alleen de bovenste."
+
+#: view/common/block-layout/geo-json-map-form.phtml:147
+msgid "Custom functions"
+msgstr "Eigen functies"
+
+#: view/common/block-layout/geo-json-map-form.phtml:149
+msgid ""
+"Names of global JavaScript functions your site provides, for cases the "
+"options above cannot express. Style receives (feature), popup receives "
+"(feature), each-feature receives (feature, layer, map)."
+msgstr ""
+"Namen van globale JavaScript-functies die je site zelf levert, voor wat de "
+"instellingen hierboven niet kunnen uitdrukken. Style krijgt (feature), popup "
+"krijgt (feature), each-feature krijgt (feature, layer, map)."
+
+#: view/common/block-layout/geo-json-map-form.phtml:154
+msgid "style function"
+msgstr "style-functie"
+
+#: view/common/block-layout/geo-json-map-form.phtml:156
+msgid "popup function"
+msgstr "popup-functie"
+
+#: view/common/block-layout/geo-json-map-form.phtml:158
+msgid "each-feature function"
+msgstr "each-feature-functie"
