@@ -2,6 +2,19 @@
     width: 100%;
 }
 
+/* A separator above the first data layer in the layer control, so the
+   historical map overlays and the data do not read as one list. Deliberately
+   the same box as Leaflet's own .leaflet-control-layers-separator, negative
+   margins included: those bleed the rule out through the control's padding
+   (6px 10px 6px 6px) to both edges, exactly as the rule above the overlays. */
+.leaflet-control-layers-overlays > .geojson-map-group-start::before {
+    content: "";
+    display: block;
+    height: 0;
+    border-top: 1px solid #ddd;
+    margin: 5px -10px 5px -6px;
+}
+
 /* Text labels drawn at a point on each shape. Sized by the block, centred on
    the point, and never intercepting clicks meant for the shape underneath. */
 .geojson-map-label {

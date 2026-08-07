@@ -319,7 +319,37 @@
         // One control for base maps, historical overlays and the data layers.
         var overlayControl = Object.assign({}, overlays, dataLayers);
         if (Object.keys(baseLayers).length || Object.keys(overlayControl).length) {
-            L.control.layers(baseLayers, overlayControl).addTo(map);
+            var control = L.control.layers(baseLayers, overlayControl).addTo(map);
+
+            // Leaflet rules the base layers off from the overlays, but the
+            // historical maps and the data layers then run together in a
+            // single list. Rule off where the data begins.
+            //
+            // The tile overlays are merged first, so their count is the index
+            // of the first data row. A data layer whose label repeats an
+            // overlay's took that overlay's place rather than adding a row of
+            // its own, so the count still holds.
+            var firstDataRow = Object.keys(overlays).length;
+            var markDataGroup = function () {
+                var list = control.getContainer().querySelector('.leaflet-control-layers-overlays');
+                if (!list) {
+                    return;
+                }
+                for (var i = 0; i < list.children.length; i++) {
+                    // Nothing to rule off above the very first row, which
+                    // Leaflet's own separator already sits on top of.
+                    list.children[i].classList.toggle(
+                        'geojson-map-group-start',
+                        i === firstDataRow && firstDataRow > 0
+                    );
+                }
+            };
+            markDataGroup();
+            // Leaflet rebuilds the list every time a layer reaches the map,
+            // and the data layers reach it as their fetches resolve, so the
+            // marking has to be reapplied afterwards. A click on a checkbox
+            // does not rebuild, so the class survives switching layers.
+            map.on('layeradd layerremove', markDataGroup);
         }
 
         if (config.stackedPopups) {
