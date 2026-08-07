@@ -182,7 +182,7 @@
         // Kept for the stacked-popup lookup, which needs the real GeoJSON layers.
         var shapeLayers = [];
 
-        (config.layers || []).forEach(function (layerConfig, index) {
+        (config.layers || []).forEach(function (layerConfig) {
             var isMarker = layerConfig.render === 'marker';
             // "label": the text label is the whole representation of a feature,
             // with no marker or shape drawn beneath it.
@@ -304,9 +304,15 @@
                     console.error('[GeoJsonMap] could not load ' + layerConfig.url, error);
                 });
 
-            dataLayers[layerConfig.label || ('Layer ' + (index + 1))] = container;
-            if (labelLayer) {
-                dataLayers[(layerConfig.label || ('Layer ' + (index + 1))) + ' — labels'] = labelLayer;
+            // The label is the opt-in: a layer with no name is drawn, but is
+            // not something the visitor is offered a switch for.
+            if (layerConfig.label) {
+                dataLayers[layerConfig.label] = container;
+                if (labelLayer) {
+                    dataLayers[layerConfig.label + ' — labels'] = labelLayer;
+                }
+            } else if (layerConfig.visible === false) {
+                console.error('[GeoJsonMap] a layer with "visible": false needs a "label", or nothing can switch it on');
             }
         });
 

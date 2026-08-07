@@ -62,7 +62,8 @@ msgid ""
 "GeoJson module is installed; optional keys: label, render (shape|marker|"
 "label), color, color_property, color_pattern, color_map, icon_url, "
 "icon_size, icon_anchor, cluster, cluster_options, label_property, "
-"label_pattern, label_class, visible."
+"label_pattern, label_class, visible. A layer without a \"label\" is drawn "
+"but not listed in the layer control."
 msgstr ""
 
 #: view/common/block-layout/geo-json-map-form.phtml:45
